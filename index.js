@@ -1,3 +1,4 @@
+const rateLimit = require('express-rate-limit')
 const express = require('express')
 const fs = require('fs')
 
@@ -6,6 +7,16 @@ const client = new Polybot()
 
 const app = express();
 const port = 3000;
+
+const limiter = rateLimit({
+	windowMs: 60 * 1000,
+	max: 50,
+	standardHeaders: false,
+	legacyHeaders: true,
+  message: 'You have been ratelimited.'
+});
+
+app.use(limiter);
 
 app.get('/', (req, res) => {
   res.send('The API is found at /api/v1 endpoint.');
