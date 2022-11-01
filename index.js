@@ -1,5 +1,6 @@
 const rateLimit = require('express-rate-limit')
 const express = require('express')
+const cors = require('cors')
 const fs = require('fs')
 
 const Polybot = require("./poly.js");
@@ -16,7 +17,10 @@ const limiter = rateLimit({
   message: 'You have been ratelimited.'
 });
 
+app.use(express.static('static'));
+app.use(express.json());
 app.use(limiter);
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('The API is found at /api/v1 endpoint.');
@@ -27,41 +31,44 @@ app.get('/api/', (req, res) => {
 });
 
 app.get('/api/v1/', (req, res) => {
-    res.send([
-        '/api/v1/chat?input=requiredString&temperature=optionalFloat',
-        '/api/v1/startingPhrase',
-        '/api/v1/continue?input=requiredString&temperature=optionalFloat',
-    ].join('\n'));
+    res.json({
+      "/chat": ['input', 'temperature'],
+      "/continue": ['input', 'temperature'],
+    });
 });
 
-app.get('/api/v1/startingPhrase', (req, res) => {
-    res.send(client.fromScratch());
-});
-
-app.get('/api/v1/chat', (req, res) => {
+app.post('/api/v1/chat', (req, res) => {
     try {
-        var temperature = parseFloat(req.query.temperature || "1");
-        if (!req.query.input) {
+        var temperature = parseFloat(req.body.temperature || "1");
+        if (!req.body.input) {
             res.send('No input provided');
         } else {
-            res.send(client.fromInput(req.query.input,temperature));
+            res.send(client.fromInput(req.body.input,temperature));
         }
     } catch {
         res.send("Couldn't parse temperature")
     }
 });
 
-app.get('/api/v1/continue', (req, res) => {
+app.post('/api/v1/continue', (req, res) => {
     try {
-        var temperature = parseFloat(req.query.temperature || "1");
-        if (!req.query.input) {
+        var temperature = parseFloat(req.body.temperature || "1");
+        if (!req.body.input) {
             res.send('No input provided');
         } else {
-            res.send(client.continue(req.query.input,temperature));
+            res.send(client.continue(req.body.input,temperature));
         }
     } catch {
         res.send("Couldn't parse temperature")
     }
+});
+
+app.get('/*', (req, res) => {
+    res.send("Invalid route!")
+});
+
+app.post('/*', (req, res) => {
+    res.send("Invalid route!")
 });
 
 app.listen(port, () => {

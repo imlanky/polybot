@@ -1,22 +1,22 @@
+const _fromInput = require('./models/frominput.js');
+const _continue = require('./models/continue.js');
+// ^ these models are not public in the repo
+
 class Polybot {
   constructor () {
   }
 
   fromInput(rawInput, temperature) {
     if (rawInput && temperature) {
-      return "Example from input.";
+      return _fromInput(rawInput, null, temperature);
     }else{
       throw "Invalid parameters!";
     }
   }
 
-  fromScratch() {
-    return "Example from Scratch.";
-  }
-
   continue(rawInput, temperature) {
     if (rawInput && temperature) {
-      return "Example continuation.";
+      return _continue(rawInput, null, temperature);
     }else{
       throw "Invalid parameters!";
     }
